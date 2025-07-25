@@ -53,6 +53,7 @@ public class HabiticaStatsController {
             String name = profile != null ? profile.optString("name", "Unknown") : "Unknown";
 
             HabiticaStatsDTO statsDTO = new HabiticaStatsDTO(
+                    user.getHabiticaUserId(),
                     name,
                     stats.getInt("lvl"),
                     stats.getDouble("hp"),
@@ -203,40 +204,6 @@ public class HabiticaStatsController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error updating task: " + e.getMessage());
-        }
-    }
-    @GetMapping("/tasks")
-    public ResponseEntity<?> getAllTasks(HttpSession session) {
-        ResponseEntity<?> result = checkSessionAndUser(session);
-        if (!(result.getBody() instanceof User user)) return result;
-
-        String url = "https://habitica.com/api/v3/tasks/user";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-api-user", user.getHabiticaUserId());
-        headers.set("x-api-key", user.getHabiticaApiToken());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        try {
-            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
-            List<Map<String, Object>> allTasks = (List<Map<String, Object>>) response.getBody().get("data");
-
-            List<HabiticaTaskDTO> taskDTOs = allTasks.stream()
-                    .map(task -> new HabiticaTaskDTO(
-                            (String) task.get("id"),
-                            (String) task.get("text"),
-                            (String) task.get("type"),
-                            Boolean.TRUE.equals(task.get("completed"))
-                    ))
-                    .toList();
-
-            return ResponseEntity.ok(taskDTOs);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching tasks: " + e.getMessage());
         }
     }
 }

@@ -19,13 +19,10 @@ public class WebSecurityConfig {
                 .requestMatchers(
                     "/", "/index.html", "/home.html", "/trail.html",
                     "/home.css", "/styles.css", "/app.js", "/script.js",
-                    "/images/**", "/api/auth/login", "/api/stats/user", "/api/stats/dailies"
+                    "/images/**", "/api/auth/**", "/api/stats/**", "/h2-console/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(Customizer.withDefaults())
-            .httpBasic(Customizer.withDefaults())
-            .logout(logout -> logout.disable()) // Only disable if you're not using logout
             .sessionManagement(Customizer.withDefaults());
 
         return http.build();
